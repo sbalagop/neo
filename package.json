@@ -1,0 +1,30 @@
+{
+  "name": "neo",
+  "version": "1.0.0",
+  "description": "RESTful API using NodeJS Express Oracle",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sbalagop/neo"
+  },
+  "keywords": [
+    "NodeJS",
+    "Express",
+    "Oracle",
+    "REST"
+  ],
+  "author": "Sivakumar Balagopalan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sbalagop/neo/issues"
+  },
+  "homepage": "https://github.com/sbalagop/neo",
+  "dependencies": {
+    "body-parser": "^1.12.3",
+    "express": "^4.12.3",
+    "oracledb": "^0.4.2"
+  }
+}
