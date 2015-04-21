@@ -12,11 +12,11 @@ app.use(bodyParser.json());
 var connAttrs = {
     "user": "hr",
     "password": "hr",
-    "connectString": "130.35.95.45/XE"
-};
+    "connectString": "localhost/XE"
+}
 
 // Http Method: GET
-// URI        : /userprofiles
+// URI        : /user_profiles
 // Read all the user profiles
 app.get('/user_profiles', function (req, res) {
     "use strict";
@@ -33,17 +33,15 @@ app.get('/user_profiles', function (req, res) {
             return;
         }
 
-        connection.execute("SELECT * FROM user_profiles", {}, {
-            outFormat: 2
+        connection.execute("SELECT * FROM USER_PROFILES", {}, {
+            outFormat: oracledb.OBJECT // Return the result as Object
         }, function (err, result) {
-            if (err || result === null) {
-                // No user profile is not found
+            if (err) {
                 res.set('Content-Type', 'application/json');
-                var status = err ? 500 : 404;
-                res.status(status).send(JSON.stringify({
-                    status: status,
-                    message: err ? "Error getting the user profile" : "No user profile is found",
-                    detailed_message: err ? err.message : null
+                res.status(500).send(JSON.stringify({
+                    status: 500,
+                    message: "Error getting the user profile",
+                    detailed_message: err.message
                 }));
             } else {
                 res.contentType('application/json');
@@ -56,9 +54,9 @@ app.get('/user_profiles', function (req, res) {
 });
 
 // Http method: GET
-// URI        : /userprofiles/:user_name
-// Read the profile of user given in :user_name
-app.get('/user_profiles/:user_name', function (req, res) {
+// URI        : /userprofiles/:USER_NAME
+// Read the profile of user given in :USER_NAME
+app.get('/user_profiles/:USER_NAME', function (req, res) {
     "use strict";
 
     oracledb.getConnection(connAttrs, function (err, connection) {
@@ -73,19 +71,19 @@ app.get('/user_profiles/:user_name', function (req, res) {
             return;
         }
 
-        connection.execute("SELECT * FROM user_profiles WHERE user_name = :userName", [req.params.user_name], {
-            outFormat: 2
+        connection.execute("SELECT * FROM USER_PROFILES WHERE USER_NAME = :USER_NAME", [req.params.USER_NAME], {
+            outFormat: oracledb.OBJECT // Return the result as Object
         }, function (err, result) {
-            if (err || result === null) {
-                // No user profile is not found
+            if (err || result.rows.length < 1) {
                 res.set('Content-Type', 'application/json');
                 var status = err ? 500 : 404;
                 res.status(status).send(JSON.stringify({
                     status: status,
-                    message: err ? "Error getting the user profile" : "No user profile is found",
-                    detailed_message: err ? err.message : null
+                    message: err ? "Error getting the user profile" : "User doesn't exist",
+                    detailed_message: err ? err.message : ""
                 }));
             } else {
+
                 res.contentType('application/json').status(200).send(JSON.stringify(result.rows));
             }
 
@@ -119,12 +117,12 @@ app.post('/user_profiles', function (req, res) {
             return;
         }
         connection.execute("INSERT INTO user_profiles VALUES " +
-            "(:user_name, :display_name, :description, :gender," +
-            ":age, :country, :theme, :member_since) ", [req.body.user_name, req.body.display_name,
-                            req.body.description, req.body.gender, req.body.age, req.body.country,
-                            req.body.theme, req.body.member_since], {
+            "(:USER_NAME, :DISPLAY_NAME, :DESCRIPTION, :GENDER," +
+            ":AGE, :COUNTRY, :THEME) ", [req.body.USER_NAME, req.body.DISPLAY_NAME,
+                            req.body.DESCRIPTION, req.body.GENDER, req.body.AGE, req.body.COUNTRY,
+                            req.body.THEME], {
                 isAutoCommit: true,
-                outFormat: 2
+                outFormat: oracledb.OBJECT // Return the result as Object
             },
             function (err, result) {
                 if (err) {
@@ -137,7 +135,7 @@ app.post('/user_profiles', function (req, res) {
                     }));
                 } else {
                     // Successfully created the resource
-                    res.status(201).set('Location', '/user_profiles/' + req.body.user_name).end();
+                    res.status(201).set('Location', '/user_profiles/' + req.body.USER_NAME).end();
                 }
 
             });
@@ -149,38 +147,42 @@ app.post('/user_profiles', function (req, res) {
 var buildUpdateQuery = function buildUpdateQuery(req) {
     "use strict";
 
-    var query = "UPDATE user_profiles SET ",
+    var query = "",
         bindValues = {};
-    if (req.body.display_name) {
-        query += "display_name = :display_name, ";
-        bindValues.display_name = req.body.display_name;
+    if (req.body.DISPLAY_NAME) {
+        query += "DISPLAY_NAME = :DISPLAY_NAME";
+        bindValues.DISPLAY_NAME = req.body.DISPLAY_NAME;
     }
-    if (req.body.description) {
-        query += "description = :description, ";
-        bindValues.description = req.body.description;
+    if (req.body.DESCRIPTION) {
+        if (query) query = query + ", ";
+        query += "DESCRIPTION = :DESCRIPTION";
+        bindValues.DESCRIPTION = req.body.DESCRIPTION;
     }
-    if (req.body.gender) {
-        query += "gender = :gender, ";
-        bindValues.gender = req.body.gender;
+    if (req.body.GENDER) {
+        if (query) query = query + ", ";
+        query += "GENDER = :GENDER";
+        bindValues.GENDER = req.body.GENDER;
     }
-    if (req.body.age) {
-        query += "age = :age, ";
-        bindValues.age = req.body.age;
+    if (req.body.AGE) {
+        if (query) query = query + ", ";
+        query += "AGE = :AGE";
+        bindValues.AGE = req.body.AGE;
     }
-    if (req.body.country) {
-        query += "country = :country, ";
-        bindValues.country = req.body.country;
+    if (req.body.COUNTRY) {
+        if (query) query = query + ", ";
+        query += "COUNTRY = :COUNTRY";
+        bindValues.COUNTRY = req.body.COUNTRY;
     }
-    if (req.body.theme) {
-        query += "theme = :theme, ";
-        bindValues.theme = req.body.theme;
+    if (req.body.THEME) {
+        if (query) query = query + ", ";
+        query += "THEME = :THEME";
+        bindValues.THEME = req.body.THEME;
     }
-    if (req.body.member_since) {
-        query += "member_since = :member_since ";
-        bindValues.member_since = req.body.member_since;
-    }
-    query += "WHERE user_name = :user_name";
-    bindValues.user_name = req.params.user_name;
+
+    query += " WHERE USER_NAME = :USER_NAME";
+    bindValues.USER_NAME = req.params.USER_NAME;
+    query = "UPDATE USER_PROFILES SET " + query;
+
     return {
         query: query,
         bindValues: bindValues
@@ -188,9 +190,9 @@ var buildUpdateQuery = function buildUpdateQuery(req) {
 };
 
 // Http method: PUT
-// URI        : /user_profiles/:user_name
-// Update the profile of user given in :user_name
-app.put('/user_profiles/:user_name', function (req, res) {
+// URI        : /user_profiles/:USER_NAME
+// Update the profile of user given in :USER_NAME
+app.put('/user_profiles/:USER_NAME', function (req, res) {
     "use strict";
 
     if ("application/json" !== req.get('Content-Type')) {
@@ -216,7 +218,7 @@ app.put('/user_profiles/:user_name', function (req, res) {
         var updateQuery = buildUpdateQuery(req);
         connection.execute(updateQuery.query, updateQuery.bindValues, {
                 isAutoCommit: true,
-                outFormat: 2
+                outFormat: oracledb.OBJECT // Return the result as Object
             },
             function (err, result) {
                 if (err || result.rowsAffected === 0) {
@@ -224,8 +226,8 @@ app.put('/user_profiles/:user_name', function (req, res) {
                     res.set('Content-Type', 'application/json');
                     res.status(400).send(JSON.stringify({
                         status: 400,
-                        message: result.rowsAffected === 0 ? "User doesn't exist" : "Input Error",
-                        detailed_message: result.rowsAffected === 0 ? "" : err.message
+                        message: err ? "Input Error" : "User doesn't exist",
+                        detailed_message: err ? err.message : ""
                     }));
                 } else {
                     // Resource successfully updated. Sending an empty response body. 
@@ -238,9 +240,9 @@ app.put('/user_profiles/:user_name', function (req, res) {
 });
 
 // Http method: DELETE
-// URI        : /userprofiles/:user_name
-// Delete the profile of user given in :user_name
-app.delete('/user_profiles/:user_name', function (req, res) {
+// URI        : /userprofiles/:USER_NAME
+// Delete the profile of user given in :USER_NAME
+app.delete('/user_profiles/:USER_NAME', function (req, res) {
     "use strict";
 
     oracledb.getConnection(connAttrs, function (err, connection) {
@@ -255,17 +257,17 @@ app.delete('/user_profiles/:user_name', function (req, res) {
             return;
         }
 
-        connection.execute("DELETE FROM user_profiles WHERE user_name = :userName", [req.params.user_name], {
+        connection.execute("DELETE FROM USER_PROFILES WHERE USER_NAME = :USER_NAME", [req.params.USER_NAME], {
             isAutoCommit: true,
-            outFormat: 2
+            outFormat: oracledb.OBJECT
         }, function (err, result) {
             if (err || result.rowsAffected === 0) {
                 // Error
                 res.set('Content-Type', 'application/json');
                 res.status(400).send(JSON.stringify({
                     status: 400,
-                    message: result.rowsAffected === 0 ? "User doesn't exist" : "Input Error",
-                    detailed_message: result.rowsAffected === 0 ? "" : err.message
+                    message: err ? "Input Error" : "User doesn't exist",
+                    detailed_message: err ? err.message : ""
                 }));
             } else {
                 // Resource successfully deleted. Sending an empty response body. 
