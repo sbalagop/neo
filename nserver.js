@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 var connAttrs = {
     "user": "hr",
     "password": "hr",
-    "connectString": "localhost/XE"
+    "connectString": "130.35.95.45/XE"
 }
 
 // Http Method: GET
@@ -105,7 +105,6 @@ app.post('/user_profiles', function (req, res) {
         }));
         return;
     }
-
     oracledb.getConnection(connAttrs, function (err, connection) {
         if (err) {
             // Error connecting to DB
@@ -143,48 +142,48 @@ app.post('/user_profiles', function (req, res) {
 
 });
 
-// Build UPDATE query and prepare bind variables
-var buildUpdateQuery = function buildUpdateQuery(req) {
+// Build UPDATE statement and prepare bind variables
+var buildUpdateStatement = function buildUpdateStatement(req) {
     "use strict";
 
-    var query = "",
+    var statement = "",
         bindValues = {};
     if (req.body.DISPLAY_NAME) {
-        query += "DISPLAY_NAME = :DISPLAY_NAME";
+        statement += "DISPLAY_NAME = :DISPLAY_NAME";
         bindValues.DISPLAY_NAME = req.body.DISPLAY_NAME;
     }
     if (req.body.DESCRIPTION) {
-        if (query) query = query + ", ";
-        query += "DESCRIPTION = :DESCRIPTION";
+        if (statement) statement = statement + ", ";
+        statement += "DESCRIPTION = :DESCRIPTION";
         bindValues.DESCRIPTION = req.body.DESCRIPTION;
     }
     if (req.body.GENDER) {
-        if (query) query = query + ", ";
-        query += "GENDER = :GENDER";
+        if (statement) statement = statement + ", ";
+        statement += "GENDER = :GENDER";
         bindValues.GENDER = req.body.GENDER;
     }
     if (req.body.AGE) {
-        if (query) query = query + ", ";
-        query += "AGE = :AGE";
+        if (statement) statement = statement + ", ";
+        statement += "AGE = :AGE";
         bindValues.AGE = req.body.AGE;
     }
     if (req.body.COUNTRY) {
-        if (query) query = query + ", ";
-        query += "COUNTRY = :COUNTRY";
+        if (statement) statement = statement + ", ";
+        statement += "COUNTRY = :COUNTRY";
         bindValues.COUNTRY = req.body.COUNTRY;
     }
     if (req.body.THEME) {
-        if (query) query = query + ", ";
-        query += "THEME = :THEME";
+        if (statement) statement = statement + ", ";
+        statement += "THEME = :THEME";
         bindValues.THEME = req.body.THEME;
     }
 
-    query += " WHERE USER_NAME = :USER_NAME";
+    statement += " WHERE USER_NAME = :USER_NAME";
     bindValues.USER_NAME = req.params.USER_NAME;
-    query = "UPDATE USER_PROFILES SET " + query;
+    statement = "UPDATE USER_PROFILES SET " + statement;
 
     return {
-        query: query,
+        statement: statement,
         bindValues: bindValues
     };
 };
@@ -215,8 +214,8 @@ app.put('/user_profiles/:USER_NAME', function (req, res) {
             return;
         }
 
-        var updateQuery = buildUpdateQuery(req);
-        connection.execute(updateQuery.query, updateQuery.bindValues, {
+        var updateStatement = buildUpdateStatement(req);
+        connection.execute(updateStatement.statement, updateStatement.bindValues, {
                 isAutoCommit: true,
                 outFormat: oracledb.OBJECT // Return the result as Object
             },
