@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 var connAttrs = {
     "user": "hr",
     "password": "hr",
-    "connectString": "130.35.95.45/XE"
+    "connectString": "localhost/XE"
 }
 
 // Http Method: GET
