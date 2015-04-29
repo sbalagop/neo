@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 var connAttrs = {
     "user": "hr",
     "password": "hr",
-    "connectString": "localhost/XE"
+    "connectString": "130.35.95.45/XE"
 }
 
 // Http Method: GET
@@ -44,11 +44,18 @@ app.get('/user_profiles', function (req, res) {
                     detailed_message: err.message
                 }));
             } else {
-                res.contentType('application/json');
-                res.status(200);
+                res.contentType('application/json').status(200);
                 res.send(JSON.stringify(result.rows));
             }
-
+            // Release the connection
+            connection.release(
+                function (err) {
+                    if (err) {
+                        console.error(err.message);
+                    } else {
+                        console.log("GET /user_profiles : Connection released");
+                    }
+                });
         });
     });
 });
@@ -83,10 +90,17 @@ app.get('/user_profiles/:USER_NAME', function (req, res) {
                     detailed_message: err ? err.message : ""
                 }));
             } else {
-
                 res.contentType('application/json').status(200).send(JSON.stringify(result.rows));
             }
-
+            // Release the connection
+            connection.release(
+                function (err) {
+                    if (err) {
+                        console.error(err.message);
+                    } else {
+                        console.log("GET /user_profiles/" + req.params.USER_NAME + " : Connection released");
+                    }
+                });
         });
     });
 });
@@ -136,6 +150,15 @@ app.post('/user_profiles', function (req, res) {
                     // Successfully created the resource
                     res.status(201).set('Location', '/user_profiles/' + req.body.USER_NAME).end();
                 }
+                // Release the connection
+                connection.release(
+                    function (err) {
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log("POST /user_profiles : Connection released");
+                        }
+                    });
 
             });
     });
@@ -232,6 +255,15 @@ app.put('/user_profiles/:USER_NAME', function (req, res) {
                     // Resource successfully updated. Sending an empty response body. 
                     res.status(204).end();
                 }
+                // Release the connection
+                connection.release(
+                    function (err) {
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                            console.log("PUT /user_profiles/" + req.params.USER_NAME + " : Connection released ");
+                        }
+                    });
 
             });
     });
@@ -272,6 +304,15 @@ app.delete('/user_profiles/:USER_NAME', function (req, res) {
                 // Resource successfully deleted. Sending an empty response body. 
                 res.status(204).end();
             }
+            // Release the connection
+            connection.release(
+                function (err) {
+                    if (err) {
+                        console.error(err.message);
+                    } else {
+                        console.log("DELETE /user_profiles/" + req.params.USER_NAME + " : Connection released");
+                    }
+                });
 
         });
     });
