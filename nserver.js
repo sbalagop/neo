@@ -110,7 +110,6 @@ app.get('/user_profiles/:USER_NAME', function (req, res) {
 // Creates a new user profile
 app.post('/user_profiles', function (req, res) {
     "use strict";
-
     if ("application/json" !== req.get('Content-Type')) {
         res.set('Content-Type', 'application/json').status(415).send(JSON.stringify({
             status: 415,
@@ -159,10 +158,8 @@ app.post('/user_profiles', function (req, res) {
                             console.log("POST /user_profiles : Connection released");
                         }
                     });
-
             });
     });
-
 });
 
 // Build UPDATE statement and prepare bind variables
@@ -264,10 +261,8 @@ app.put('/user_profiles/:USER_NAME', function (req, res) {
                             console.log("PUT /user_profiles/" + req.params.USER_NAME + " : Connection released ");
                         }
                     });
-
             });
     });
-
 });
 
 // Http method: DELETE
