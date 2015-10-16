@@ -133,7 +133,7 @@ app.post('/user_profiles', function (req, res) {
             ":AGE, :COUNTRY, :THEME) ", [req.body.USER_NAME, req.body.DISPLAY_NAME,
                             req.body.DESCRIPTION, req.body.GENDER, req.body.AGE, req.body.COUNTRY,
                             req.body.THEME], {
-                isAutoCommit: true,
+                autoCommit: true,
                 outFormat: oracledb.OBJECT // Return the result as Object
             },
             function (err, result) {
@@ -236,7 +236,7 @@ app.put('/user_profiles/:USER_NAME', function (req, res) {
 
         var updateStatement = buildUpdateStatement(req);
         connection.execute(updateStatement.statement, updateStatement.bindValues, {
-                isAutoCommit: true,
+                autoCommit: true,
                 outFormat: oracledb.OBJECT // Return the result as Object
             },
             function (err, result) {
@@ -284,7 +284,7 @@ app.delete('/user_profiles/:USER_NAME', function (req, res) {
         }
 
         connection.execute("DELETE FROM USER_PROFILES WHERE USER_NAME = :USER_NAME", [req.params.USER_NAME], {
-            isAutoCommit: true,
+            autoCommit: true,
             outFormat: oracledb.OBJECT
         }, function (err, result) {
             if (err || result.rowsAffected === 0) {
