@@ -25,6 +25,6 @@
   "dependencies": {
     "body-parser": "^1.12.3",
     "express": "^4.12.3",
-    "oracledb": "^0.4.2"
+    "oracledb": "^1.11.0"
   }
 }
