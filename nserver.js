@@ -61,7 +61,7 @@ app.get('/user_profiles', function (req, res) {
 });
 
 // Http method: GET
-// URI        : /userprofiles/:USER_NAME
+// URI        : /user_profiles/:USER_NAME
 // Read the profile of user given in :USER_NAME
 app.get('/user_profiles/:USER_NAME', function (req, res) {
     "use strict";
@@ -266,7 +266,7 @@ app.put('/user_profiles/:USER_NAME', function (req, res) {
 });
 
 // Http method: DELETE
-// URI        : /userprofiles/:USER_NAME
+// URI        : /user_profiles/:USER_NAME
 // Delete the profile of user given in :USER_NAME
 app.delete('/user_profiles/:USER_NAME', function (req, res) {
     "use strict";
